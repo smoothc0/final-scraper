@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing{% endblock %}
+
+{% block content %}
+<section class="pricing">
+    <div class="container">
+        <div class="section-title">
+            <h2>Simple, Transparent Pricing</h2>
+            <p>Choose the plan that fits your needs. Cancel anytime.</p>
+        </div>
+
+        <div class="pricing-cards">
+            {% for plan_name, plan in plans.items() %}
+            <div class="pricing-card">
+                <h3>{{ plan.name }} Plan</h3>
+                <div class="price">${{ plan.price }}<span>/month</span></div>
+                <ul class="pricing-features">
+                    <li>{{ plan.limit }} emails/month</li>
+                    <li>AI-powered filtering</li>
+                    <li>CSV export</li>
+                    <li>Email validation</li>
+                    <li>24/7 support</li>
+                </ul>
+                <a href="{{ url_for('checkout', plan=plan_name) }}" class="btn btn-primary">Subscribe Now</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

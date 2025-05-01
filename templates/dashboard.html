@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<section class="dashboard">
+    <div class="container">
+        <div class="dashboard-header">
+            <h2>Welcome to Your Dashboard</h2>
+            <div>
+                <span class="badge">{{ plan }} Plan</span>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Your Usage</h3>
+            <p>{{ emails_scraped }} / {{ limit }} emails scraped this month</p>
+            <div class="progress-container">
+                <div class="progress-bar" 
+                     data-limit="{{ limit }}" 
+                     data-scraped="{{ emails_scraped }}"></div>
+            </div>
+        </div>
+
+        <form class="scrape-form" method="POST" action="{{ url_for('scrape_emails') }}">
+            <input type="text" name="target" placeholder="Enter website URL or keyword" required>
+            <button type="submit" class="btn btn-primary">Scrape Emails</button>
+        </form>
+
+        <div class="dashboard-card">
+            <h3>Recent Scrapes</h3>
+            <!-- Results table would go here -->
+            <p>Demo version - actual scraping would show results here</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

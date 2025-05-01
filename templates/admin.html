@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+<section class="dashboard">
+    <div class="container">
+        <h2>Admin Panel</h2>
+        
+        <div class="dashboard-card">
+            <h3>Users</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">ID</th>
+                        <th style="text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">Email</th>
+                        <th style="text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">Admin</th>
+                        <th style="text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">{{ user.id }}</td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">{{ user.email }}</td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">
+                            {% if user.is_admin %}Yes{% else %}No{% endif %}
+                        </td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">
+                            <a href="#" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Subscriptions</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">User</th>
+                        <th style="text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">Plan</th>
+                        <th style="text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">Limit</th>
+                        <th style="text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">Used</th>
+                        <th style="text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in subscriptions %}
+                    <tr>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">{{ sub.user.email }}</td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">{{ sub.plan }}</td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">{{ sub.limit }}</td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">{{ sub.emails_scraped }}</td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid var(--glass-border);">
+                            <a href="#" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Reset</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

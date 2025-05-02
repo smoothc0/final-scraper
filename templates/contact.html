@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+<section class="contact">
+    <div class="container">
+        <div class="section-title">
+            <h2>Get In Touch</h2>
+            <p>We'd love to hear from you</p>
+        </div>
+
+        <div class="contact-grid">
+            <div class="contact-form">
+                <form method="POST" action="/submit-contact">
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+
+            <div class="contact-info">
+                <h3>Other Ways to Reach Us</h3>
+                <div class="info-item">
+                    <strong>Email:</strong> support@ai-scraper.com
+                </div>
+                <div class="info-item">
+                    <strong>Phone:</strong> +1 (555) 123-4567
+                </div>
+                <div class="info-item">
+                    <strong>Address:</strong> 123 Tech Street, San Francisco, CA
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

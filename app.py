@@ -50,14 +50,6 @@ def index():
 def pricing():
     return render_template('pricing.html', plans=PLANS)
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
-
 @app.route('/checkout/<plan>')
 @login_required
 def checkout(plan):

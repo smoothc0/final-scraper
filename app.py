@@ -145,6 +145,15 @@ def admin():
     subscriptions = Subscription.query.all()
     return render_template('admin.html', users=users, subscriptions=subscriptions)
 
+# Add these with your other routes
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
 @app.route('/scrape', methods=['POST'])
 @login_required
 def scrape_emails():
@@ -165,6 +174,15 @@ def scrape_emails():
     
     flash('Successfully scraped 10 emails (demo)', 'success')
     return redirect(url_for('dashboard'))
+
+@app.route('/submit_contact', methods=['POST'])
+def submit_contact():
+    # In production, you'd want to:
+    # 1. Validate inputs
+    # 2. Send an email
+    # 3. Store in database
+    flash('Thank you for your message! We\'ll respond within 24 hours.', 'success')
+    return redirect(url_for('contact'))
 
 if __name__ == '__main__':
     with app.app_context():

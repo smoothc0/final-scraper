@@ -2,8 +2,10 @@ services:
   - type: web
     name: ai-email-scraper
     runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    buildCommand: |
+      pip install -r requirements.txt
+      python -c "from app import app, db; with app.app_context(): db.create_all()"
+    startCommand: gunicorn --worker-class gevent --workers 4 --bind 0.0.0.0:$PORT app:app
     envVars:
       - key: SECRET_KEY
         generateValue: true
@@ -15,6 +17,8 @@ services:
         sync: false
       - key: PAYPAL_SECRET
         sync: false
+      - key: FLASK_ENV
+        value: production
 
 databases:
   - name: ai-email-scraper-db

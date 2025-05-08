@@ -1,4 +1,3 @@
-# auth.py - Updated
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import db, User
@@ -13,7 +12,7 @@ def login():
         return redirect(url_for('dashboard'))
         
     if request.method == 'POST':
-        email = request.form.get('email')
+        email = request.form.get('email').strip().lower()
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
 
@@ -66,10 +65,21 @@ def register():
         new_user = User(
             email=email,
             password=generate_password_hash(password, method='pbkdf2:sha256'),
-            is_admin=(email == 'admin@example.com')  # Auto-admin for this email
+            is_admin=False
         )
 
         db.session.add(new_user)
+        db.session.commit()
+
+        # Create a free trial subscription
+        trial_sub = Subscription(
+            user_id=new_user.id,
+            plan='starter',
+            limit=10,  # Free trial limit
+            is_active=True,
+            expires_at=datetime.utcnow() + timedelta(days=7)  # 7-day trial
+        )
+        db.session.add(trial_sub)
         db.session.commit()
 
         flash('Account created successfully! Please log in.', 'success')

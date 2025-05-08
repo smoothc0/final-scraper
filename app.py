@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from time import sleep
 
 from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
-from flask_login import LoginManager, login_required, current_user
-from werkzeug.security import generate_password_hash
+from flask_login import LoginManager, login_required, current_user, login_user
+from werkzeug.security import generate_password_hash, check_password_hash
 from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment
 from paypalcheckoutsdk.orders import OrdersCreateRequest
 
@@ -40,11 +40,10 @@ PLANS = {
     'elite': {'price': 21, 'limit': 2000, 'name': 'Elite'}
 }
 
-# Health check endpoint (required for Render)
+# Health check endpoint
 @app.route('/health')
 def health_check():
     try:
-        # Verify database connection
         User.query.limit(1).all()
         return jsonify({"status": "healthy", "database": "connected"}), 200
     except Exception as e:
@@ -59,10 +58,13 @@ def initialize_database():
     with app.app_context():
         try:
             db.create_all()
-            if not User.query.filter_by(email='admin@example.com').first():
+            admin_email = os.environ.get('ADMIN_EMAIL', 'admin@example.com')
+            admin_password = os.environ.get('ADMIN_PASSWORD', 'adminpassword')
+            
+            if not User.query.filter_by(email=admin_email).first():
                 admin_user = User(
-                    email='admin@example.com',
-                    password=generate_password_hash('adminpassword', method='pbkdf2:sha256'),
+                    email=admin_email,
+                    password=generate_password_hash(admin_password, method='pbkdf2:sha256'),
                     is_admin=True
                 )
                 db.session.add(admin_user)
@@ -142,16 +144,26 @@ def scrape_emails():
             subscription.emails_scraped += len(emails)
             db.session.commit()
             
-            # Store results (implementation needed)
+            # Store results
             print(f"Scraped {len(emails)} emails from {target}")
             
         except Exception as e:
             print(f"Scraping failed: {str(e)}", file=sys.stderr)
     
-    # Start background thread
     threading.Thread(target=scrape_task).start()
     flash('Scraping started. Results will appear shortly.', 'success')
     return redirect(url_for('dashboard'))
+
+@app.route('/admin')
+@login_required
+def admin():
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page', 'error')
+        return redirect(url_for('dashboard'))
+    
+    users = User.query.all()
+    subscriptions = Subscription.query.all()
+    return render_template('admin.html', users=users, subscriptions=subscriptions)
 
 @app.route('/about')
 def about():

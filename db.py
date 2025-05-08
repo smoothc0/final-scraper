@@ -1,4 +1,3 @@
-# db.py - Updated
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 
@@ -35,6 +34,7 @@ class Subscription(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=30))
+    paypal_subscription_id = db.Column(db.String(100))
 
     def is_valid(self):
         return self.is_active and datetime.utcnow() < self.expires_at

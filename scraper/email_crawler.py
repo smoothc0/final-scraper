@@ -1,15 +1,16 @@
-# scraper/email_crawler.py
 import re
 import requests
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 from typing import List, Set
 import tldextract
+import time
 
 class EmailScraper:
-    def __init__(self, max_pages: int = 10, timeout: int = 10):
+    def __init__(self, max_pages: int = 10, timeout: int = 10, delay: float = 1.0):
         self.max_pages = max_pages
         self.timeout = timeout
+        self.delay = delay  # Delay between requests to avoid rate limiting
         self.visited_urls = set()
         self.emails_found = set()
         self.headers = {
@@ -22,21 +23,32 @@ class EmailScraper:
             return False
         if parsed.scheme not in ('http', 'https'):
             return False
-        if any(ext in url for ext in ['facebook.com', 'twitter.com', 'linkedin.com']):
+        if any(ext in url for ext in ['facebook.com', 'twitter.com', 'linkedin.com', 'instagram.com']):
             return False
-        extracted = tldextract.extract(url)
-        base_extracted = tldextract.extract(base_domain)
-        return f"{extracted.domain}.{extracted.suffix}" == f"{base_extracted.domain}.{base_extracted.suffix}"
+        
+        try:
+            extracted = tldextract.extract(url)
+            base_extracted = tldextract.extract(base_domain)
+            return f"{extracted.domain}.{extracted.suffix}" == f"{base_extracted.domain}.{base_extracted.suffix}"
+        except:
+            return False
     
     def extract_emails(self, text: str) -> Set[str]:
         email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-        return set(re.findall(email_pattern, text, re.IGNORECASE))
+        emails = set(re.findall(email_pattern, text, re.IGNORECASE))
+        # Basic email validation
+        return {email for email in emails if '.' in email.split('@')[-1] and len(email.split('@')[0]) > 0}
     
     def scrape_page(self, url: str, base_domain: str):
         try:
+            time.sleep(self.delay)  # Respectful crawling
+            
             response = requests.get(url, headers=self.headers, timeout=self.timeout)
             response.raise_for_status()
             
+            if 'text/html' not in response.headers.get('Content-Type', ''):
+                return
+                
             soup = BeautifulSoup(response.text, 'html.parser')
             text = soup.get_text()
             
@@ -57,13 +69,17 @@ class EmailScraper:
             print(f"Error scraping {url}: {str(e)}")
     
     def scrape_website(self, start_url: str) -> List[str]:
-        parsed = urlparse(start_url)
-        if not parsed.scheme:
-            start_url = 'http://' + start_url
-        
-        base_domain = parsed.netloc if parsed.netloc else start_url
-        
-        self.visited_urls.add(start_url)
-        self.scrape_page(start_url, base_domain)
-        
-        return sorted(self.emails_found)
+        try:
+            parsed = urlparse(start_url)
+            if not parsed.scheme:
+                start_url = 'http://' + start_url
+            
+            base_domain = parsed.netloc if parsed.netloc else start_url
+            
+            self.visited_urls.add(start_url)
+            self.scrape_page(start_url, base_domain)
+            
+            return sorted(self.emails_found)
+        except Exception as e:
+            print(f"Scraping failed: {str(e)}")
+            return []
